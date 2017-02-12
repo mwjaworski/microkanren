@@ -1,0 +1,16 @@
+.vscode/
+.idea/
+.history/
+logs/
+npm-debug.log
+*.log
+.DS_Store
+
+dist/
+node_modules/
+test/
+tmp/
+coverage/
+
+lib/*.js
+lib/*.js.map

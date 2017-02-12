@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "commonjs",
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "pretty": true
+  },
+  "include": [
+    "lib/**/*",
+    "test/**/*",
+    "node_modules/@types/*"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "simple-ui_microkanren",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.ts",
+  "private": false,
+  "files": [
+    "lib/",
+    "test/",
+    "CHANGELOG.MD",
+    "README.MD"
+  ],
+  "scripts": {
+    "clean": "rm -Rf lib/*.js; rm -Rf lib/*.js.map; rm -Rf test/*.js; rm -Rf test/*.js.map;",
+    "build": "tsc -p .",
+    "test": "tsc -p . && mocha",
+    "coverage": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+    "coveralls": "npm run coverage",
+    "postcoveralls": "rm -Rf ./coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:simple-ui/di.git"
+  },
+  "keywords": [
+    "dependency",
+    "injection"
+  ],
+  "author": "Michael Jaworski <mjaworski@acm.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/simple-ui/di/issues"
+  },
+  "homepage": "https://github.com/simple-ui/di#readme",
+  "dependencies": {
+    "@types/lodash": "^4.14.52",
+    "lodash": "^4.17.4",
+    "typescript": "2.1.5"
+  },
+  "devDependencies": {
+    "@types/chai": "3.4.34",
+    "@types/mocha": "2.2.38",
+    "chai": "3.5.0",
+    "coveralls": "2.11.15",
+    "istanbul": "0.4.5",
+    "mocha": "3.2.0",
+    "mocha-lcov-reporter": "1.2.0"
+  }
+}
