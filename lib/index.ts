@@ -1,22 +1,23 @@
 import { uniqueId, size, head, tail } from 'lodash';
 
-class LogicVariable {  
+type Variable = any | LogicVariable;
+type Substitution = Array<Variable>;
+type Goal = (stream?: Stream) => Substitution;
 
-  constructor(private _id: string = uniqueId()) {
-    
-  }
+const UNIFICATION_FAILED: undefined = undefined;
+const RESOLUTION_NOT_FOUND: undefined = undefined;
+
+class LogicVariable {
+
+  constructor(private _id: string = uniqueId()) { }
 
   get id(): string {
-    return this._id;
-  }
-
-  toString(): string {
     return this._id;
   }
 }
 
 class Stream {
-  
+
   private _set: {
     [k: string]: Variable;
   };
@@ -26,14 +27,14 @@ class Stream {
   }
 
   lookup(value: Variable): any {
-    
+
     if (!(value instanceof LogicVariable)) {
       return value;
     }
-    
+
     const resolution: Variable = this._set[value.id];
 
-    if (resolution === undefined) {
+    if (resolution === RESOLUTION_NOT_FOUND) {
       return value;
     }
     else if (resolution instanceof LogicVariable) {
@@ -48,21 +49,7 @@ class Stream {
     this._set[logicalVariable.id] = value;
     return this;
   }
-
-  size() {
-    return size(this._set);
-  }
-
-  toString() {
-    return JSON.stringify(this._set);
-  }
 }
-
-type Variable = any | LogicVariable;
-type Substitution = Array<Variable>;
-type Goal = (stream?: Stream) => Substitution;
-
-const UNIFICATION_FAILED: undefined = undefined;
 
 /**
  * 
@@ -92,7 +79,7 @@ class MicroKanren {
   }
 
   private _disjunction(goal1: Goal, goal2: Goal): Goal {
-    return (stream: Stream): Substitution => {      
+    return (stream: Stream): Substitution => {
       return goal1(stream).concat(goal2(stream));
     };
   }
@@ -103,7 +90,7 @@ class MicroKanren {
       : this._conjunction(head(goals), this.conj(...tail(goals)));
   }
 
-  _conjunction(goal1: Goal, goal2: Goal): Goal {
+  private _conjunction(goal1: Goal, goal2: Goal): Goal {
     return (stream: Stream): Substitution => {
       return goal1(stream).reduce((substitution: Substitution, value: Variable) => {
         return substitution.concat(goal2(value));
@@ -114,8 +101,7 @@ class MicroKanren {
   unify(_v1: Variable, _v2: Variable): Goal {
     return (stream: Stream): Substitution => {
       const newStream = this._unify(stream, _v1, _v2);
-      // console.log(newStream, stream, _v1, _v2);
-      
+
       return (newStream === UNIFICATION_FAILED)
         ? this.failure()
         : this.success(newStream);
@@ -123,20 +109,18 @@ class MicroKanren {
   };
 
   private _unify(stream: Stream, _v1: Variable, _v2: Variable): Stream {
-   
+
     const v1: Variable | Variable[] = stream.lookup(_v1);
     const v2: Variable | Variable[] = stream.lookup(_v2);
- 
-    // console.log(v1, v2);
 
     if (v1 instanceof Array && v2 instanceof Array && v1.length === v2.length) {
-      
+
       if (v1.length === 0) {
         return stream;
       }
 
-      const [v1Head, ...v1Tail] = v1;  
-      const [v2Head, ...v2Tail] = v2;  
+      const [v1Head, ...v1Tail] = v1;
+      const [v2Head, ...v2Tail] = v2;
       const newStream = this._unify(stream, v1Head, v2Head);
 
       if (newStream === UNIFICATION_FAILED) {
