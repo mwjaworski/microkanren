@@ -1,4 +1,4 @@
-# Dependency Injection
+# Micro Kanren
 
 [![Coverage Status](https://coveralls.io/repos/github/simple-ui/di/badge.svg?branch=master)](https://coveralls.io/github/simple-ui/di?branch=master)
 [![Build Status](https://travis-ci.org/simple-ui/microkanren.svg?branch=master)](https://travis-ci.org/simple-ui/microkanren)

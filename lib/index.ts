@@ -7,7 +7,11 @@ type Goal = (stream?: Stream) => Substitution;
 const UNIFICATION_FAILED: undefined = undefined;
 const RESOLUTION_NOT_FOUND: undefined = undefined;
 
-class LogicVariable {
+export interface ILogicVariable {
+  id: string;
+}
+
+class LogicVariable implements ILogicVariable {
 
   constructor(private _id: string = uniqueId()) { }
 
@@ -68,7 +72,7 @@ class MicroKanren {
     return [stream];
   }
 
-  failure(): Substitution {
+  failure(stream?: Stream): Substitution {
     return [];
   }
 
