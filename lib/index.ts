@@ -20,17 +20,19 @@ class LogicVariable implements ILogicVariable {
   }
 }
 
+interface IState {
+  [k: string]: Variable;
+}
+
 class Stream {
 
-  private _set: {
-    [k: string]: Variable;
-  };
+  private _set: IState;
 
   constructor() {
     this._set = {};
   }
 
-  lookup(value: Variable): any {
+  walk(value: Variable): any {
 
     if (!(value instanceof LogicVariable)) {
       return value;
@@ -42,7 +44,7 @@ class Stream {
       return value;
     }
     else if (resolution instanceof LogicVariable) {
-      return this.lookup(resolution);
+      return this.walk(resolution);
     }
     else {
       return resolution;
@@ -76,6 +78,34 @@ class MicroKanren {
     return [];
   }
 
+  walk(value: Variable, stream: Stream): any {
+    return stream.walk(value);
+  }
+
+  // six operators: define-relation
+
+  /**
+   * 
+   * 
+   * @param {(variable: Variable) => Goal} lambda 
+   * @returns {Goal} 
+   * 
+   * @memberOf MicroKanren
+   */
+  callFresh(lambda: (variable: Variable) => Goal): Goal {
+    return (stream: Stream) => {
+      return lambda(this.fresh())(stream);
+    };
+  }
+
+  /**
+   * 
+   * 
+   * @param {...Goal[]} goals 
+   * @returns {Goal} 
+   * 
+   * @memberOf MicroKanren
+   */
   disj(...goals: Goal[]): Goal {
     return (goals.length <= 0)
       ? this.failure
@@ -88,6 +118,14 @@ class MicroKanren {
     };
   }
 
+  /**
+   * 
+   * 
+   * @param {...Goal[]} goals 
+   * @returns {Goal} 
+   * 
+   * @memberOf MicroKanren
+   */
   conj(...goals: Goal[]): Goal {
     return (goals.length <= 0)
       ? this.success
@@ -102,20 +140,38 @@ class MicroKanren {
     };
   }
 
-  unify(_v1: Variable, _v2: Variable): Goal {
+  /**
+   * 
+   * 
+   * @param {Variable} _v1 
+   * @param {Variable} _v2 
+   * @returns {Goal} 
+   * 
+   * @memberOf MicroKanren
+   */
+  equals(_v1: Variable, _v2: Variable): Goal {
     return (stream: Stream): Substitution => {
-      const newStream = this._unify(stream, _v1, _v2);
+      const newStream = this.unify(stream, _v1, _v2);
 
       return (newStream === UNIFICATION_FAILED)
         ? this.failure()
         : this.success(newStream);
     };
-  };
+  }
 
-  private _unify(stream: Stream, _v1: Variable, _v2: Variable): Stream {
+  /**
+   * 
+   * @param {Stream} stream 
+   * @param {Variable} _v1 
+   * @param {Variable} _v2 
+   * @returns {Stream} 
+   * 
+   * @memberOf MicroKanren
+   */
+  unify(stream: Stream, _v1: Variable, _v2: Variable): Stream {
 
-    const v1: Variable | Variable[] = stream.lookup(_v1);
-    const v2: Variable | Variable[] = stream.lookup(_v2);
+    const v1: Variable | Variable[] = stream.walk(_v1);
+    const v2: Variable | Variable[] = stream.walk(_v2);
 
     if (v1 instanceof Array && v2 instanceof Array && v1.length === v2.length) {
 
@@ -125,13 +181,13 @@ class MicroKanren {
 
       const [v1Head, ...v1Tail] = v1;
       const [v2Head, ...v2Tail] = v2;
-      const newStream = this._unify(stream, v1Head, v2Head);
+      const newStream = this.unify(stream, v1Head, v2Head);
 
       if (newStream === UNIFICATION_FAILED) {
         return UNIFICATION_FAILED;
       }
 
-      return this._unify(stream, v1Tail, v2Tail);
+      return this.unify(stream, v1Tail, v2Tail);
     }
     else if (v1 instanceof LogicVariable) {
       return stream.extend(v1, v2);
@@ -145,6 +201,17 @@ class MicroKanren {
     else {
       return UNIFICATION_FAILED;
     }
+  }
+
+  /**
+   * 
+   * @param {Goal} goal 
+   * @returns {Substitution} 
+   * 
+   * @memberOf MicroKanren
+   */
+  run(goal: Goal): Substitution {
+    return goal(this.stream());
   }
 
 }

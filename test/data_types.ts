@@ -18,8 +18,8 @@ describe('MicroKanren Data Types', () => {
     const stream = u.stream();
     const variable = u.fresh();
 
-    assert(stream.lookup(1) === 1, `A stream will return values`);
-    assert(stream.lookup(variable) === variable, `A stream will return variables`);
+    assert(stream.walk(1) === 1, `A stream will return values`);
+    assert(stream.walk(variable) === variable, `A stream will return variables`);
    
   });
 
@@ -40,16 +40,16 @@ describe('MicroKanren Data Types', () => {
     const variable = u.fresh();
     const stream = u.stream();
 
-    const substitutionA = u.unify(1, 2)(u.stream());
-    const substitutionB = u.unify(variable, 2)(u.stream());
-    const substitutionC = u.unify([], [])(u.stream());
-    const substitutionD = u.unify([1, 2], [u.fresh('A'), u.fresh('B')])(u.stream());
+    const substitutionA = u.equals(1, 2)(u.stream());
+    const substitutionB = u.equals(variable, 2)(u.stream());
+    const substitutionC = u.equals([], [])(u.stream());
+    const substitutionD = u.equals([1, 2], [u.fresh('A'), u.fresh('B')])(u.stream());
     
     assert(_.isEqual(substitutionA, []), `a unification requires at least one logical variable`);
-    assert(_.first(substitutionB).lookup(variable) === 2, `a unification will assign a value to a logical variable`);
+    assert(_.first(substitutionB).walk(variable) === 2, `a unification will assign a value to a logical variable`);
     assert(_.isEqual(substitutionC, [u.stream()]), `a unification on empty lists returns substitution with an empty stream`);
-    assert(_.first(substitutionD).lookup(u.fresh('A')) === 1, `a variable in an adjacent list will be unfied with a value in the first`);
-    assert(_.first(substitutionD).lookup(u.fresh('B')) === 2, `a variable in an adjacent list will be unfied with a value in the first`);
+    assert(_.first(substitutionD).walk(u.fresh('A')) === 1, `a variable in an adjacent list will be unfied with a value in the first`);
+    assert(_.first(substitutionD).walk(u.fresh('B')) === 2, `a variable in an adjacent list will be unfied with a value in the first`);
 
 
   });

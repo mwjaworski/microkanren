@@ -11,14 +11,14 @@ describe('MicroKanren Goals', () => {
     const v2 = u.fresh();
     
     const goal = u.disj(
-      u.unify(v1, 1), 
-      u.unify(2, v2)
+      u.equals(v1, 1), 
+      u.equals(2, v2)
     );
 
     const substitution = goal(stream);
     
-    assert(stream.lookup(v1) === 1, `v1 unified with 1`);
-    assert(stream.lookup(v2) === 2, `v2 unified with 2`);
+    assert(stream.walk(v1) === 1, `v1 unified with 1`);
+    assert(stream.walk(v2) === 2, `v2 unified with 2`);
     
   });
 
@@ -29,14 +29,14 @@ describe('MicroKanren Goals', () => {
     const v2 = u.fresh();
     
     const goal = u.conj(
-      u.unify(2, v2),
-      u.unify(v1, v2)
+      u.equals(2, v2),
+      u.equals(v1, v2)
     );
 
     const substitution = goal(stream);
     
-    assert(stream.lookup(v1) === 2, `v1 unified with 2`);
-    assert(stream.lookup(v2) === 2, `v2 unified with 2`);
+    assert(stream.walk(v1) === 2, `v1 unified with 2`);
+    assert(stream.walk(v2) === 2, `v2 unified with 2`);
     
   });
 
@@ -49,13 +49,13 @@ describe('MicroKanren Goals', () => {
     const z = u.fresh();
     
     const g1 = u.disj(
-      u.unify(w, 1),
-      u.unify(x, 2)
+      u.equals(w, 1),
+      u.equals(x, 2)
     );
 
     const g2 = u.disj(
-      u.unify(y, 3),
-      u.unify(z, 4)
+      u.equals(y, 3),
+      u.equals(z, 4)
     );
 
     const goal = u.conj(
@@ -65,10 +65,10 @@ describe('MicroKanren Goals', () => {
 
     const resolution = goal(stream);
 
-    assert(stream.lookup(w) === 1, 'w resolved to 1');
-    assert(stream.lookup(x) === 2, 'x resolved to 2');
-    assert(stream.lookup(y) === 3, 'y resolved to 3');
-    assert(stream.lookup(z) === 4, 'z resolved to 4');
+    assert(stream.walk(w) === 1, 'w resolved to 1');
+    assert(stream.walk(x) === 2, 'x resolved to 2');
+    assert(stream.walk(y) === 3, 'y resolved to 3');
+    assert(stream.walk(z) === 4, 'z resolved to 4');
 
   });
 
